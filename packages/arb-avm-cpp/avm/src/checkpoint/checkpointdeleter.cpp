@@ -85,9 +85,6 @@ DeleteResults deleteCheckpoint(
         if (delete_results.reference_count < 1) {
             auto parsed_state =
                 checkpoint::utils::parseState(results.stored_value);
-
-            auto delete_static_res =
-                deleteValue(*transaction, parsed_state.static_val_key);
             auto delete_register_res =
                 deleteValue(*transaction, parsed_state.register_val_key);
             auto delete_cp_key = deleteValue(*transaction, parsed_state.pc_key);
@@ -106,8 +103,7 @@ DeleteResults deleteCheckpoint(
             auto delete_pending_count =
                 deleteValue(*transaction, parsed_state.pending_count_key);
 
-            if (delete_static_res.status.ok() &&
-                delete_register_res.status.ok() && delete_cp_key.status.ok() &&
+            if (delete_register_res.status.ok() && delete_cp_key.status.ok() &&
                 delete_datastack_res.status.ok() &&
                 delete_auxstack_res.status.ok() &&
                 delete_inbox_res.status.ok() &&

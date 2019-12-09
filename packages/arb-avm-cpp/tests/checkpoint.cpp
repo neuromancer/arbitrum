@@ -499,7 +499,6 @@ void getSavedState(MachineStateFetcher& fetcher,
 
     REQUIRE(data.status_char == expected_data.status_char);
     REQUIRE(data.blockreason_str == expected_data.blockreason_str);
-    REQUIRE(data.static_val_key == expected_data.static_val_key);
     REQUIRE(data.inbox_count_key == expected_data.inbox_count_key);
     REQUIRE(data.pending_count_key == expected_data.pending_count_key);
     REQUIRE(data.pc_key == expected_data.pc_key);
@@ -577,7 +576,6 @@ void deleteCheckpointSavedTwiceReordered(
 }
 
 ParsedState makeStorageData(MachineStateSaver& stateSaver,
-                            value staticVal,
                             value registerVal,
                             Datastack stack,
                             Datastack auxstack,
@@ -594,7 +592,6 @@ ParsedState makeStorageData(MachineStateSaver& stateSaver,
     auto inbox_results = inbox.checkpointState(stateSaver);
     auto pending_results = pendingInbox.checkpointState(stateSaver);
 
-    auto static_val_results = stateSaver.saveValue(staticVal);
     auto register_val_results = stateSaver.saveValue(registerVal);
     auto pc_results = stateSaver.saveValue(pc);
     auto err_pc_results = stateSaver.saveValue(err_pc);
@@ -602,8 +599,7 @@ ParsedState makeStorageData(MachineStateSaver& stateSaver,
     auto status_str = (unsigned char)state;
     auto blockreason_str = serializeForCheckpoint(blockReason);
 
-    return ParsedState{static_val_results.storage_key,
-                       register_val_results.storage_key,
+    return ParsedState{register_val_results.storage_key,
                        datastack_results.storage_key,
                        auxstack_results.storage_key,
                        inbox_results.msgs_tuple_results.storage_key,
@@ -650,7 +646,6 @@ MessageStack getMsgStack2() {
 ParsedState getStateValues(MachineStateSaver& saver) {
     TuplePool pool;
     uint256_t register_val = 100;
-    auto static_val = Tuple(register_val, Tuple(), &pool);
 
     auto code_point = CodePoint(1, Operation(), 0);
     auto tup1 = Tuple(register_val, &pool);
@@ -671,17 +666,15 @@ ParsedState getStateValues(MachineStateSaver& saver) {
 
     auto inbox_blocked = InboxBlocked(::hash(inbox_stack.messages));
 
-    auto saved_data =
-        makeStorageData(saver, static_val, register_val, data_stack, aux_stack,
-                        state, pc_codepoint, err_pc_codepoint, inbox_stack,
-                        pending_stack, inbox_blocked);
+    auto saved_data = makeStorageData(
+        saver, register_val, data_stack, aux_stack, state, pc_codepoint,
+        err_pc_codepoint, inbox_stack, pending_stack, inbox_blocked);
 
     return saved_data;
 }
 
 ParsedState getDefaultValues(MachineStateSaver& saver) {
     TuplePool pool;
-    uint256_t static_val = 0;
     auto register_val = Tuple();
     auto data_stack = Tuple();
     auto aux_stack = Tuple();
@@ -691,9 +684,9 @@ ParsedState getDefaultValues(MachineStateSaver& saver) {
     Status state = Status::Extensive;
     CodePoint code_point(0, Operation(), 0);
 
-    auto data = makeStorageData(
-        saver, static_val, Tuple(), Datastack(), Datastack(), state, code_point,
-        code_point, MessageStack(&pool), MessageStack(&pool), NotBlocked());
+    auto data = makeStorageData(saver, Tuple(), Datastack(), Datastack(), state,
+                                code_point, code_point, MessageStack(&pool),
+                                MessageStack(&pool), NotBlocked());
 
     return data;
 }
@@ -710,7 +703,6 @@ std::vector<std::vector<unsigned char>> getHashKeys(ParsedState data) {
     hash_keys.push_back(data.pending_key);
     hash_keys.push_back(data.pending_key);
     hash_keys.push_back(data.register_val_key);
-    hash_keys.push_back(data.static_val_key);
 
     return hash_keys;
 }

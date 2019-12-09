@@ -20,7 +20,6 @@
 #include <avm/value/value.hpp>
 
 struct ParsedState {
-    std::vector<unsigned char> static_val_key;
     std::vector<unsigned char> register_val_key;
     std::vector<unsigned char> datastack_key;
     std::vector<unsigned char> auxstack_key;

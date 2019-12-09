@@ -217,7 +217,6 @@ SaveResults MachineState::checkpointState(CheckpointStorage& storage) {
     auto inbox_results = inbox.checkpointState(stateSaver);
     auto pending_results = pendingInbox.checkpointState(stateSaver);
 
-    auto static_val_results = stateSaver.saveValue(staticVal);
     auto register_val_results = stateSaver.saveValue(registerVal);
     auto err_code_point = stateSaver.saveValue(errpc);
     auto pc_results = stateSaver.saveValue(code[pc]);
@@ -232,11 +231,10 @@ SaveResults MachineState::checkpointState(CheckpointStorage& storage) {
         inbox_results.msg_count_results.status.ok() &&
         pending_results.msgs_tuple_results.status.ok() &&
         pending_results.msg_count_results.status.ok() &&
-        static_val_results.status.ok() && register_val_results.status.ok() &&
-        pc_results.status.ok() && err_code_point.status.ok()) {
+        register_val_results.status.ok() && pc_results.status.ok() &&
+        err_code_point.status.ok()) {
         auto machine_state_data =
-            ParsedState{static_val_results.storage_key,
-                        register_val_results.storage_key,
+            ParsedState{register_val_results.storage_key,
                         datastack_results.storage_key,
                         auxstack_results.storage_key,
                         inbox_results.msgs_tuple_results.storage_key,
@@ -265,10 +263,6 @@ bool MachineState::restoreCheckpoint(
 
     if (results.status.ok()) {
         auto state_data = results.data;
-
-        auto static_val_results =
-            stateFetcher.getValue(state_data.static_val_key);
-        staticVal = static_val_results.data;
 
         auto register_results =
             stateFetcher.getValue(state_data.register_val_key);

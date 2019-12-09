@@ -190,7 +190,6 @@ ParsedState parseState(const std::vector<unsigned char>& stored_state) {
     auto status = extractStatus(current_iter);
     auto blockreason_vector = extractBlockReason(current_iter);
 
-    auto static_val = extractHashKey(current_iter);
     auto register_val = extractHashKey(current_iter);
     auto datastack = extractHashKey(current_iter);
     auto auxstack = extractHashKey(current_iter);
@@ -201,9 +200,9 @@ ParsedState parseState(const std::vector<unsigned char>& stored_state) {
     auto pc = extractHashKey(current_iter);
     auto err_pc = extractHashKey(current_iter);
 
-    return ParsedState{static_val, register_val, datastack, auxstack,
-                       inbox,      inbox_count,  pending,   pending_count,
-                       pc,         err_pc,       status,    blockreason_vector};
+    return ParsedState{register_val, datastack, auxstack,          inbox,
+                       inbox_count,  pending,   pending_count,     pc,
+                       err_pc,       status,    blockreason_vector};
 }
 
 std::vector<unsigned char> serializeState(const ParsedState& state_data) {
@@ -213,10 +212,6 @@ std::vector<unsigned char> serializeState(const ParsedState& state_data) {
     state_data_vector.insert(state_data_vector.end(),
                              state_data.blockreason_str.begin(),
                              state_data.blockreason_str.end());
-
-    state_data_vector.insert(state_data_vector.end(),
-                             state_data.static_val_key.begin(),
-                             state_data.static_val_key.end());
 
     state_data_vector.insert(state_data_vector.end(),
                              state_data.register_val_key.begin(),
