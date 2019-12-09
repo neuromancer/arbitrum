@@ -27,7 +27,8 @@
 constexpr int UINT64_SIZE = 8;
 constexpr int HASH_KEY_LENGTH = 33;
 constexpr int TUP_TUPLE_LENGTH = 34;
-constexpr int TUP_NUM_LENGTH = 34;
+constexpr int TUP_NUM_LENGTH = 33;
+constexpr int TUP_HASH_ONLY_LENGTH = 33;
 constexpr int TUP_CODEPT_LENGTH = 9;
 
 namespace checkpoint {
@@ -62,11 +63,7 @@ struct ValueSerializer {
 
     std::vector<unsigned char> operator()(const uint256_t& val) const {
         std::vector<unsigned char> value_vector;
-        auto type_code = static_cast<unsigned char>(NUM);
-        value_vector.push_back(type_code);
-
         marshal_uint256_t(val, value_vector);
-
         return value_vector;
     }
 
@@ -87,8 +84,9 @@ struct ValueSerializer {
         std::vector<unsigned char> value_vector;
         auto type_code = static_cast<unsigned char>(HASH_ONLY);
         value_vector.push_back(type_code);
-
-        marshal_uint256_t(val.hash, value_vector);
+        std::array<unsigned char, 32> tmpbuf;
+        to_big_endian(val.hash, tmpbuf.begin());
+        value_vector.insert(value_vector.end(), tmpbuf.begin(), tmpbuf.end());
 
         return value_vector;
     }
@@ -166,7 +164,10 @@ std::vector<std::vector<unsigned char>> parseTuple(
                 break;
             }
             case HASH_ONLY: {
-                throw std::runtime_error("HASH_ONLY item");
+                auto next_it = iter + TUP_HASH_ONLY_LENGTH;
+                current.insert(current.end(), iter, next_it);
+                iter = next_it;
+                break;
             }
         }
         return_vector.push_back(current);
@@ -186,8 +187,13 @@ CodePoint deserializeCodepoint(const std::vector<unsigned char>& val,
 }
 
 uint256_t deserializeUint256_t(const std::vector<unsigned char>& val) {
-    auto buff = reinterpret_cast<const char*>(&val[2]);
+    auto buff = reinterpret_cast<const char*>(&val[1]);
     return deserializeUint256t(buff);
+}
+
+HashOnly deserializeHashOnly(const std::vector<unsigned char>& val) {
+    auto buff = reinterpret_cast<const char*>(&val[1]);
+    return HashOnly{deserializeUint256t(buff)};
 }
 
 std::vector<unsigned char> serializeValue(const value& val) {

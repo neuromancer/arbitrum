@@ -36,7 +36,10 @@ struct HashOnly {
 using value = nonstd::variant<Tuple, uint256_t, CodePoint, HashOnly>;
 
 std::ostream& operator<<(std::ostream& os, const value& val);
-uint256_t hash(const value& value);
+inline uint256_t hash(const HashOnly& val) {
+    return val.hash;
+}
+uint256_t hash(const value& val);
 int get_tuple_size(char*& bufptr);
 
 uint256_t deserializeUint256t(const char*& srccode);
@@ -44,15 +47,19 @@ Operation deserializeOperation(const char*& bufptr, TuplePool& pool);
 CodePoint deserializeCodePoint(const char*& bufptr, TuplePool& pool);
 Tuple deserializeTuple(const char*& bufptr, int size, TuplePool& pool);
 value deserialize_value(const char*& srccode, TuplePool& pool);
+HashOnly deserialize_hash_only(const char*& srccode);
+
 void marshal_value(const value& val, std::vector<unsigned char>& buf);
 void marshal_Tuple(const Tuple& val, std::vector<unsigned char>& buf);
 void marshal_CodePoint(const CodePoint& val, std::vector<unsigned char>& buf);
 void marshal_uint256_t(const uint256_t& val, std::vector<unsigned char>& buf);
+void marshal_hash_only(const HashOnly& val, std::vector<unsigned char>& buf);
 
 void marshalShallow(const value& val, std::vector<unsigned char>& buf);
 void marshalShallow(const Tuple& val, std::vector<unsigned char>& buf);
 void marshalShallow(const CodePoint& val, std::vector<unsigned char>& buf);
 void marshalShallow(const uint256_t& val, std::vector<unsigned char>& buf);
+void marshalShallow(const HashOnly& val, std::vector<unsigned char>& buf);
 
 template <typename T>
 static T shrink(uint256_t i) {

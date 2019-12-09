@@ -39,6 +39,7 @@ std::vector<unsigned char> serializeValue(const value& val);
 CodePoint deserializeCodepoint(const std::vector<unsigned char>& val,
                                const std::vector<CodePoint>& code);
 uint256_t deserializeUint256_t(const std::vector<unsigned char>& val);
+HashOnly deserializeHashOnly(const std::vector<unsigned char>& val);
 std::vector<std::vector<unsigned char>> parseTuple(
     const std::vector<unsigned char>& data);
 ParsedState parseState(const std::vector<unsigned char>& stored_state);

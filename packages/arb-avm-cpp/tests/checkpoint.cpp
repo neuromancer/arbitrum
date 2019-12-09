@@ -24,8 +24,7 @@
 
 #include <boost/filesystem.hpp>
 
-std::string path =
-    boost::filesystem::current_path().generic_string() + "/machineDb";
+std::string path = "./machineDb";
 
 void saveValue(MachineStateSaver& saver,
                const value& val,

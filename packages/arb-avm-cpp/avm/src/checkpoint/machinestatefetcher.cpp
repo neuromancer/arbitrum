@@ -108,7 +108,10 @@ DbResult<Tuple> MachineStateFetcher::getTuple(
                         break;
                     }
                     case HASH_ONLY: {
-                        throw std::runtime_error("HASH_ONLY item");
+                        auto val = checkpoint::utils::deserializeHashOnly(
+                            results.stored_value);
+                        values.push_back(val);
+                        break;
                     }
                 }
             }
@@ -148,8 +151,14 @@ DbResult<value> MachineStateFetcher::getValue(
                 return DbResult<value>{results.status, results.reference_count,
                                        code_point};
             }
+            case HASH_ONLY: {
+                auto val = checkpoint::utils::deserializeHashOnly(
+                    results.stored_value);
+                return DbResult<value>{results.status, results.reference_count,
+                                       val};
+            }
             default: {
-                throw std::runtime_error("HASH_ONLY item");
+                throw std::runtime_error("Item of unknown type");
                 return DbResult<value>();
             }
         }

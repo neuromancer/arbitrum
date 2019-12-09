@@ -32,6 +32,12 @@ uint256_t deserializeUint256t(const char*& bufptr) {
     return ret;
 }
 
+HashOnly deserialize_hash_only(const char*& bufptr) {
+    uint256_t ret = from_big_endian(bufptr, bufptr + UINT256_SIZE);
+    bufptr += UINT256_SIZE;
+    return HashOnly{ret};
+}
+
 Operation deserializeOperation(const char*& bufptr, TuplePool& pool) {
     uint8_t immediateCount;
     memcpy(&immediateCount, bufptr, sizeof(immediateCount));
@@ -82,6 +88,13 @@ void marshal_uint256_t(const uint256_t& val, std::vector<unsigned char>& buf) {
     buf.insert(buf.end(), tmpbuf.begin(), tmpbuf.end());
 }
 
+void marshal_hash_only(const HashOnly& val, std::vector<unsigned char>& buf) {
+    buf.push_back(static_cast<unsigned char>(HASH_ONLY));
+    std::array<unsigned char, 32> tmpbuf;
+    to_big_endian(val.hash, tmpbuf.begin());
+    buf.insert(buf.end(), tmpbuf.begin(), tmpbuf.end());
+}
+
 struct Marshaller {
     std::vector<unsigned char>& buf;
 
@@ -91,15 +104,7 @@ struct Marshaller {
 
     void operator()(const CodePoint& val) const { marshal_CodePoint(val, buf); }
 
-    void operator()(const HashOnly& val) const {
-        std::vector<unsigned char> value_vector;
-        auto type_code = static_cast<unsigned char>(HASH_ONLY);
-        value_vector.push_back(type_code);
-
-        std::array<unsigned char, 32> tmpbuf;
-        to_big_endian(val.hash, tmpbuf.begin());
-        buf.insert(buf.end(), tmpbuf.begin(), tmpbuf.end());
-    }
+    void operator()(const HashOnly& val) const { marshal_hash_only(val, buf); }
 };
 
 void marshal_value(const value& val, std::vector<unsigned char>& buf) {
@@ -139,6 +144,10 @@ void marshalShallow(const uint256_t& val, std::vector<unsigned char>& buf) {
     marshal_uint256_t(val, buf);
 }
 
+void marshalShallow(const HashOnly& val, std::vector<unsigned char>& buf) {
+    marshal_hash_only(val, buf);
+}
+
 value deserialize_value(const char*& bufptr, TuplePool& pool) {
     uint8_t valType;
     memcpy(&valType, bufptr, sizeof(valType));
@@ -148,6 +157,8 @@ value deserialize_value(const char*& bufptr, TuplePool& pool) {
             return deserializeUint256t(bufptr);
         case CODEPT:
             return deserializeCodePoint(bufptr, pool);
+        case HASH_ONLY:
+            return deserialize_hash_only(bufptr);
         default:
             if (valType >= TUPLE && valType <= TUPLE + 8) {
                 return deserializeTuple(bufptr, valType - TUPLE, pool);
