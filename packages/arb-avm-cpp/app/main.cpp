@@ -103,20 +103,23 @@ int main(int argc, char* argv[]) {
     auto msg3Data = deserialize_value(msg3DataRawPtr, mach.getPool());
 
     mach.sendOnchainMessage(Message{msg1Data, 0, 0, {}});
-    mach.deliverOnchainMessages();
-    Assertion assertion1 = mach.run(stepCount, 0, 0);
     mach.sendOnchainMessage(Message{msg2Data, 0, 0, {}});
     mach.deliverOnchainMessages();
-    Assertion assertion2 = mach.run(stepCount, 0, 0);
+    mach.run(stepCount, 0, 0);
     mach.sendOnchainMessage(Message{msg3Data, 0, 0, {}});
     mach.deliverOnchainMessages();
-    Assertion assertion3 = mach.run(stepCount, 0, 0);
 
+    //    auto start_tracking_data = mach.startTracking();
+    Assertion assertion1 = mach.run(stepCount, 0, 0);
+    //    auto saved = mach.finishTracking();
+    //    auto n_step_data = saved.generateNStepProof(start_tracking_data);
+    //    std::cout << "Saved " << n_step_data.size() << "\n";
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;
-    std::cout << assertion1.stepCount << " " << assertion2.stepCount << " "
-              << assertion3.stepCount << " steps in " << elapsed.count() * 1000
+    std::cout << assertion1.stepCount << " steps in " << elapsed.count() * 1000
               << " milliseconds" << std::endl;
+
+    std::cout << assertion1.stepCount << " steps" << std::endl;
     std::cout << to_hex_str(mach.hash()) << "\n" << mach << std::endl;
     std::this_thread::sleep_for(1s);
     return 0;
