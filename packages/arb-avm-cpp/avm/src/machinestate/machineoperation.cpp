@@ -345,14 +345,17 @@ void hashOp(MachineState& m) {
     ++m.pc;
 }
 
+struct TypeOpVisitor {
+    uint256_t operator()(const Tuple&) const { return TUPLE; }
+
+    uint256_t operator()(const uint256_t&) const { return NUM; }
+
+    uint256_t operator()(const CodePoint&) const { return CODEPT; }
+};
+
 void typeOp(MachineState& m) {
     m.stack.prepForMod(1);
-    if (nonstd::holds_alternative<uint256_t>(m.stack[0]))
-        m.stack[0] = NUM;
-    else if (nonstd::holds_alternative<CodePoint>(m.stack[0]))
-        m.stack[0] = CODEPT;
-    else if (nonstd::holds_alternative<Tuple>(m.stack[0]))
-        m.stack[0] = TUPLE;
+    m.stack[0] = nonstd::visit(TypeOpVisitor{}, m.stack[0]);
     ++m.pc;
 }
 

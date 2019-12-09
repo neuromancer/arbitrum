@@ -82,13 +82,18 @@ void marshal_uint256_t(const uint256_t& val, std::vector<unsigned char>& buf) {
     buf.insert(buf.end(), tmpbuf.begin(), tmpbuf.end());
 }
 
+struct Marshaller {
+    std::vector<unsigned char>& buf;
+
+    void operator()(const Tuple& val) const { marshal_Tuple(val, buf); }
+
+    void operator()(const uint256_t& val) const { marshal_uint256_t(val, buf); }
+
+    void operator()(const CodePoint& val) const { marshal_CodePoint(val, buf); }
+};
+
 void marshal_value(const value& val, std::vector<unsigned char>& buf) {
-    if (nonstd::holds_alternative<Tuple>(val))
-        marshal_Tuple(nonstd::get<Tuple>(val), buf);
-    else if (nonstd::holds_alternative<uint256_t>(val))
-        marshal_uint256_t(nonstd::get<uint256_t>(val), buf);
-    else if (nonstd::holds_alternative<CodePoint>(val))
-        marshal_CodePoint(nonstd::get<CodePoint>(val), buf);
+    nonstd::visit(Marshaller{buf}, val);
 }
 
 void marshalShallow(const value& val, std::vector<unsigned char>& buf) {
