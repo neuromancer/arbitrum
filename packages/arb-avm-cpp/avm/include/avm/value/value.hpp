@@ -28,8 +28,12 @@ class Tuple;
 struct Operation;
 struct CodePoint;
 
+struct HashOnly {
+    uint256_t hash;
+};
+
 // Note: uint256_t is actually 48 bytes long
-using value = nonstd::variant<Tuple, uint256_t, CodePoint>;
+using value = nonstd::variant<Tuple, uint256_t, CodePoint, HashOnly>;
 
 std::ostream& operator<<(std::ostream& os, const value& val);
 uint256_t hash(const value& value);
@@ -56,5 +60,9 @@ static T shrink(uint256_t i) {
 }
 
 std::vector<unsigned char> GetHashKey(const value& val);
+
+inline bool operator==(const HashOnly& val1, const HashOnly& val2) {
+    return val1.hash == val2.hash;
+}
 
 #endif /* value_hpp */

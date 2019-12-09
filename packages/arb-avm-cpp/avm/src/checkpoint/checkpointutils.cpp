@@ -82,6 +82,16 @@ struct ValueSerializer {
                             pc_vector.end());
         return value_vector;
     }
+
+    std::vector<unsigned char> operator()(const HashOnly& val) const {
+        std::vector<unsigned char> value_vector;
+        auto type_code = static_cast<unsigned char>(HASH_ONLY);
+        value_vector.push_back(type_code);
+
+        marshal_uint256_t(val.hash, value_vector);
+
+        return value_vector;
+    }
 };
 
 using iterator = std::vector<unsigned char>::const_iterator;

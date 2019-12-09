@@ -351,6 +351,10 @@ struct TypeOpVisitor {
     uint256_t operator()(const uint256_t&) const { return NUM; }
 
     uint256_t operator()(const CodePoint&) const { return CODEPT; }
+
+    uint256_t operator()(const HashOnly&) const {
+        throw std::runtime_error("Can't access hash only value");
+    }
 };
 
 void typeOp(MachineState& m) {

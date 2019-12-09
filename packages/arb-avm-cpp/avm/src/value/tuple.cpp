@@ -149,7 +149,7 @@ value Tuple::clone_shallow() {
             tup.set_element(i, val);
         } else {
             auto valHash = hash(get_element(i));
-            tup.set_element(i, valHash);
+            tup.set_element(i, HashOnly{valHash});
         }
     }
     return tup;

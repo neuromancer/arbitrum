@@ -90,6 +90,16 @@ struct Marshaller {
     void operator()(const uint256_t& val) const { marshal_uint256_t(val, buf); }
 
     void operator()(const CodePoint& val) const { marshal_CodePoint(val, buf); }
+
+    void operator()(const HashOnly& val) const {
+        std::vector<unsigned char> value_vector;
+        auto type_code = static_cast<unsigned char>(HASH_ONLY);
+        value_vector.push_back(type_code);
+
+        std::array<unsigned char, 32> tmpbuf;
+        to_big_endian(val.hash, tmpbuf.begin());
+        buf.insert(buf.end(), tmpbuf.begin(), tmpbuf.end());
+    }
 };
 
 void marshal_value(const value& val, std::vector<unsigned char>& buf) {
@@ -177,6 +187,11 @@ struct ValuePrinter {
         //        std::printf("in CodePoint ostream operator\n");
         os << "CodePoint(" << val.pc << ", " << val.op << ", "
            << to_hex_str(val.nextHash) << ")";
+        return &os;
+    }
+
+    std::ostream* operator()(const HashOnly& val) const {
+        os << "HashOnly(" << val.hash << ")";
         return &os;
     }
 };
