@@ -214,6 +214,7 @@ func (vm *EthRollupWatcher) GetEvents(ctx context.Context, blockId *common.Block
 func (vm *EthRollupWatcher) GetParams(ctx context.Context) (valprotocol.ChainParams, error) {
 	return valprotocol.ChainParams{
 		StakeRequirement:        nil,
+		StakeToken:              common.Address{},
 		GracePeriod:             common.TimeTicks{},
 		MaxExecutionSteps:       0,
 		MaxTimeBoundsWidth:      0,

@@ -6,6 +6,7 @@ require (
 	github.com/ethereum/go-ethereum v1.9.10
 	github.com/gorilla/rpc v1.2.0
 	github.com/offchainlabs/arbitrum/packages/arb-util v0.4.3
+	github.com/offchainlabs/arbitrum/packages/arb-validator v0.4.3 // indirect
 	github.com/offchainlabs/arbitrum/packages/arb-validator-core v0.4.3
 )
 

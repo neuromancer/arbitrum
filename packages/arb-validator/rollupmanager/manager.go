@@ -34,7 +34,7 @@ import (
 )
 
 const (
-	ValidEthBridgeVersion = "1"
+	ValidEthBridgeVersion = "token-staking"
 )
 
 type Manager struct {

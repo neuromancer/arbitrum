@@ -241,6 +241,7 @@ func setUpChain(rollupAddress common.Address, checkpointType string, contractPat
 		checkpointer,
 		valprotocol.ChainParams{
 			StakeRequirement:        big.NewInt(1),
+			StakeToken:              common.Address{},
 			GracePeriod:             common.TicksFromSeconds(60 * 60),
 			MaxExecutionSteps:       1000000,
 			MaxTimeBoundsWidth:      20,

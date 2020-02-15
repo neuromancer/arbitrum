@@ -60,6 +60,7 @@ func (con *arbFactory) CreateRollup(
 		params.MaxExecutionSteps,
 		params.MaxTimeBoundsWidth,
 		params.StakeRequirement,
+		params.StakeToken.ToEthAddress(),
 		owner.ToEthAddress(),
 	)
 	if err != nil {

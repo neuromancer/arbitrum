@@ -14,6 +14,12 @@ interface ArbRollupInterface extends Interface {
 
         getStakeRequired: TypedFunctionDescription<{ encode([]: []): string }>;
 
+        getStakeToken: TypedFunctionDescription<{ encode([]: []): string }>;
+
+        getWithdrawnStake: TypedFunctionDescription<{
+            encode([_staker]: [string]): string;
+        }>;
+
         globalInbox: TypedFunctionDescription<{ encode([]: []): string }>;
 
         isStaked: TypedFunctionDescription<{
@@ -82,6 +88,7 @@ interface ArbRollupInterface extends Interface {
                 _maxExecutionSteps,
                 _maxTimeBoundsWidth,
                 _stakeRequirement,
+                _stakeToken,
                 _owner,
                 _challengeFactoryAddress,
                 _globalInboxAddress,
@@ -92,6 +99,7 @@ interface ArbRollupInterface extends Interface {
                 BigNumberish,
                 BigNumberish,
                 BigNumberish,
+                string,
                 string,
                 string,
                 string,
@@ -270,6 +278,10 @@ export class ArbRollup extends Contract {
 
         getStakeRequired(): Promise<BigNumber>;
 
+        getStakeToken(): Promise<string>;
+
+        getWithdrawnStake(_staker: string, overrides?: TransactionOverrides): Promise<ContractTransaction>;
+
         globalInbox(): Promise<string>;
 
         isStaked(_stakerAddress: string): Promise<boolean>;
@@ -329,6 +341,7 @@ export class ArbRollup extends Contract {
             _maxExecutionSteps: BigNumberish,
             _maxTimeBoundsWidth: BigNumberish,
             _stakeRequirement: BigNumberish,
+            _stakeToken: string,
             _owner: string,
             _challengeFactoryAddress: string,
             _globalInboxAddress: string,
@@ -419,6 +432,10 @@ export class ArbRollup extends Contract {
 
     getStakeRequired(): Promise<BigNumber>;
 
+    getStakeToken(): Promise<string>;
+
+    getWithdrawnStake(_staker: string, overrides?: TransactionOverrides): Promise<ContractTransaction>;
+
     globalInbox(): Promise<string>;
 
     isStaked(_stakerAddress: string): Promise<boolean>;
@@ -478,6 +495,7 @@ export class ArbRollup extends Contract {
         _maxExecutionSteps: BigNumberish,
         _maxTimeBoundsWidth: BigNumberish,
         _stakeRequirement: BigNumberish,
+        _stakeToken: string,
         _owner: string,
         _challengeFactoryAddress: string,
         _globalInboxAddress: string,
@@ -595,6 +613,10 @@ export class ArbRollup extends Contract {
 
         getStakeRequired(): Promise<BigNumber>;
 
+        getStakeToken(): Promise<BigNumber>;
+
+        getWithdrawnStake(_staker: string): Promise<BigNumber>;
+
         globalInbox(): Promise<BigNumber>;
 
         isStaked(_stakerAddress: string): Promise<BigNumber>;
@@ -638,6 +660,7 @@ export class ArbRollup extends Contract {
             _maxExecutionSteps: BigNumberish,
             _maxTimeBoundsWidth: BigNumberish,
             _stakeRequirement: BigNumberish,
+            _stakeToken: string,
             _owner: string,
             _challengeFactoryAddress: string,
             _globalInboxAddress: string,

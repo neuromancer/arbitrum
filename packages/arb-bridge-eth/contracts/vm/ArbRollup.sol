@@ -53,7 +53,7 @@ contract ArbRollup is NodeGraph, Staking {
     // Only callable by owner
     string constant ONLY_OWNER = "ONLY_OWNER";
 
-    string public constant VERSION = "1";
+    string public constant VERSION = "token-staking";
 
     address payable owner;
 
@@ -71,6 +71,7 @@ contract ArbRollup is NodeGraph, Staking {
         uint64 _maxExecutionSteps,
         uint64 _maxTimeBoundsWidth,
         uint128 _stakeRequirement,
+        address _stakeToken,
         address payable _owner,
         address _challengeFactoryAddress,
         address _globalInboxAddress
@@ -87,6 +88,7 @@ contract ArbRollup is NodeGraph, Staking {
         );
         Staking.init(
             _stakeRequirement,
+            _stakeToken,
             _challengeFactoryAddress
         );
         owner = _owner;

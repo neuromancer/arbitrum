@@ -49,6 +49,7 @@ contract ArbFactory is CloneFactory {
         uint64 _maxExecutionSteps,
         uint64 _maxTimeBoundsWidth,
         uint128 _stakeRequirement,
+        address _stakeToken,
         address payable _owner
     )
         public
@@ -61,6 +62,7 @@ contract ArbFactory is CloneFactory {
             _maxExecutionSteps,
             _maxTimeBoundsWidth,
             _stakeRequirement,
+            _stakeToken,
             _owner,
             challengeFactoryAddress,
             globalInboxAddress

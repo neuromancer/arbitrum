@@ -417,8 +417,14 @@ func (vm *ethRollupWatcher) GetParams(ctx context.Context) (valprotocol.ChainPar
 	if err != nil {
 		return valprotocol.ChainParams{}, err
 	}
+
+	stakeToken, err := vm.ArbRollup.GetStakeToken(nil)
+	if err != nil {
+		return valprotocol.ChainParams{}, err
+	}
 	return valprotocol.ChainParams{
 		StakeRequirement:        stakeRequired,
+		StakeToken:              common.NewAddressFromEth(stakeToken),
 		GracePeriod:             common.TimeTicks{rawParams.GracePeriodTicks},
 		MaxExecutionSteps:       rawParams.MaxExecutionSteps,
 		MaxTimeBoundsWidth:      rawParams.MaxTimeBoundsWidth,

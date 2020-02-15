@@ -25,6 +25,8 @@ import "../challenge/IChallengeFactory.sol";
 
 import "../arch/Protocol.sol";
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 
 contract Staking is ChallengeType {
 
@@ -82,9 +84,12 @@ contract Staking is ChallengeType {
     }
 
     uint128 private stakeRequirement;
+    address private stakeToken;
     mapping(address => Staker) private stakers;
     uint256 private stakerCount;
     mapping (address => bool) challenges;
+
+    mapping(address => uint256) withdrawnStakes;
 
     event RollupStakeCreated(
         address staker,
@@ -115,8 +120,24 @@ contract Staking is ChallengeType {
         return stakeRequirement;
     }
 
+    function getStakeToken() external view returns(address) {
+        return stakeToken;
+    }
+
     function isStaked(address _stakerAddress) external view returns (bool) {
         return stakers[_stakerAddress].location != 0x00;
+    }
+
+    function getWithdrawnStake(address payable _staker) external {
+        uint256 amount = withdrawnStakes[_staker];
+        if (amount == 0) {
+            return;
+        }
+        if (stakeToken == address(0)) {
+            _staker.transfer(amount);
+        } else {
+            IERC20(stakeToken).transfer(_staker, amount);
+        }
     }
 
     function resolveChallenge(address payable winner, address loser, uint256) external {
@@ -124,7 +145,7 @@ contract Staking is ChallengeType {
         delete challenges[msg.sender];
 
         Staker storage winningStaker = getValidStaker(address(winner));
-        winner.transfer(stakeRequirement / 2);
+        withdrawnStakes[winner] += stakeRequirement / 2;
         winningStaker.inChallenge = false;
         deleteStaker(loser);
 
@@ -207,6 +228,7 @@ contract Staking is ChallengeType {
 
     function init(
         uint128 _stakeRequirement,
+        address _stakeToken,
         address _challengeFactoryAddress
     )
         internal
@@ -218,6 +240,7 @@ contract Staking is ChallengeType {
 
         // VM parameters
         stakeRequirement = _stakeRequirement;
+        stakeToken = _stakeToken;
     }
 
     function getStakerLocation(address _stakerAddress) internal view returns (bytes32) {
@@ -226,12 +249,14 @@ contract Staking is ChallengeType {
         return location;
     }
 
-    function createStake(
-        bytes32 location
-    )
-        internal
-    {
-        require(msg.value == stakeRequirement, STK_AMT);
+    function createStake(bytes32 location) internal {
+        if (stakeToken == address(0)) {
+            require(msg.value == stakeRequirement, STK_AMT);
+        } else {
+            require(msg.value == 0, STK_AMT);
+            IERC20(stakeToken).transferFrom(msg.sender, address(this), stakeRequirement);
+        }
+
         require(stakers[msg.sender].location == 0x00, ALRDY_STAKED);
         stakers[msg.sender] = Staker(
             location,
@@ -250,7 +275,7 @@ contract Staking is ChallengeType {
 
     function refundStaker(address payable _stakerAddress) internal {
         deleteStaker(_stakerAddress);
-        _stakerAddress.transfer(stakeRequirement);
+        withdrawnStakes[_stakerAddress] += stakeRequirement;
 
         emit RollupStakeRefunded(address(_stakerAddress));
     }

@@ -24,8 +24,18 @@ interface ArbFactoryInterface extends Interface {
                 _maxExecutionSteps,
                 _maxTimeBoundsWidth,
                 _stakeRequirement,
+                _stakeToken,
                 _owner,
-            ]: [Arrayish, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish, string]): string;
+            ]: [
+                Arrayish,
+                BigNumberish,
+                BigNumberish,
+                BigNumberish,
+                BigNumberish,
+                BigNumberish,
+                string,
+                string,
+            ]): string;
         }>;
     };
 
@@ -63,6 +73,7 @@ export class ArbFactory extends Contract {
             _maxExecutionSteps: BigNumberish,
             _maxTimeBoundsWidth: BigNumberish,
             _stakeRequirement: BigNumberish,
+            _stakeToken: string,
             _owner: string,
             overrides?: TransactionOverrides,
         ): Promise<ContractTransaction>;
@@ -81,6 +92,7 @@ export class ArbFactory extends Contract {
         _maxExecutionSteps: BigNumberish,
         _maxTimeBoundsWidth: BigNumberish,
         _stakeRequirement: BigNumberish,
+        _stakeToken: string,
         _owner: string,
         overrides?: TransactionOverrides,
     ): Promise<ContractTransaction>;
@@ -103,6 +115,7 @@ export class ArbFactory extends Contract {
             _maxExecutionSteps: BigNumberish,
             _maxTimeBoundsWidth: BigNumberish,
             _stakeRequirement: BigNumberish,
+            _stakeToken: string,
             _owner: string,
         ): Promise<BigNumber>;
     };
