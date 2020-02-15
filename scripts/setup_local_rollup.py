@@ -89,10 +89,17 @@ def deploy(args, sudo_flag=False):
 
     os.remove(ethaddrs)
 
+    extra_args = ""
+    if args.staketoken:
+        extra_args += " -staketoken=%s" % args.staketoken
+    if args.stakeamount:
+        extra_args += " -stakeamount=%s" % args.stakeamount
+
     rollup_creation_cmd = (
-        "docker run -it --network=arb-network -v %s:/home/user/state arb-validator create --password pass state ws://%s:%s %s"
+        "docker run -it --network=arb-network -v %s:/home/user/state arb-validator create -password=pass %s state ws://%s:%s %s"
         % (
             os.path.abspath("validator-states/validator0"),
+            extra_args,
             image_name,
             ws_port,
             factory_address,
@@ -157,6 +164,16 @@ def main():
         action="store_true",
         dest="is_parity",
         help="Generate states based on arb-bridge-eth docker images",
+    )
+    parser.add_argument(
+        "--stakeamount",
+        type=str,
+        help="Amount to stake (measured in wei or single ERC-20 unit",
+    )
+    parser.add_argument(
+        "--staketoken",
+        type=str,
+        help="Address of an ERC-20 token to stake (Stake is in ETH if this is not set)",
     )
     parser.add_argument(
         "--no-build",

@@ -20,6 +20,8 @@ abigen --sol=GlobalInbox.sol --pkg=globalinbox --out=globalinbox.go
 abigen --sol=test_only/ChallengeTester.sol --pkg=challengetester --out=challengetester.go
 abigen --sol=test_only/MessageTester.sol --pkg=messagetester --out=messagetester.go
 
+abigen --sol=@openzeppelin/contracts/token/ERC20/IERC20.sol --pkg=ierc20 --out=ierc20.go
+
 \cp arbfactory.go ../../arb-validator-core/ethbridge/arbfactory/
 \cp arbrollup.go ../../arb-validator-core/ethbridge/rollup/
 \cp challengefactory.go ../../arb-validator-core/ethbridge/challengefactory/
@@ -29,12 +31,14 @@ abigen --sol=test_only/MessageTester.sol --pkg=messagetester --out=messagetester
 \cp globalinbox.go ../../arb-validator-core/ethbridge/globalinbox/
 \cp challengetester.go ../../arb-validator-core/ethbridge/challengetester/
 \cp messagetester.go ../../arb-validator-core/ethbridge/messagetester/
+\cp ierc20.go ../../arb-validator-core/ethbridge/ierc20/
 rm -rf @openzeppelin bytes
 rm -f arbfactory.go arbrollup.go
 rm -f challengefactory.go
 rm -f inboxtopchallenge.go messageschallenge.go executionchallenge.go
 rm -f globalinbox.go
 rm -f challengetester.go messagetester.go
+rm -f ierc20.go
 cd ../../..
 
 yarn workspace arb-provider-ethers update-abi

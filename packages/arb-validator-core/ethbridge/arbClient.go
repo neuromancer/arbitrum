@@ -124,6 +124,10 @@ func (c *EthArbClient) NewOneStepProof(address common.Address) (arbbridge.OneSte
 	return newOneStepProof(address.ToEthAddress(), c.client)
 }
 
+func (c *EthArbClient) NewIERC20Watcher(address common.Address) (arbbridge.IERC20Watcher, error) {
+	return newIERC20Watcher(address.ToEthAddress(), c.client)
+}
+
 func (c *EthArbClient) GetBalance(ctx context.Context, account common.Address) (*big.Int, error) {
 	return c.client.BalanceAt(ctx, account.ToEthAddress(), nil)
 }

@@ -71,6 +71,10 @@ func (c *ArbClient) NewInboxTopChallenge(address common.Address) (arbbridge.Inbo
 	return NewInboxTopChallenge(address, c.client)
 }
 
+func (c *ArbClient) NewIERC20Watcher(address common.Address) (arbbridge.IERC20Watcher, error) {
+	return newIERC20Watcher(address.ToEthAddress(), c.client)
+}
+
 func (c *ArbClient) GetBalance(ctx context.Context, account common.Address) (*big.Int, error) {
 	return nil, errors.New("unimplemented")
 }

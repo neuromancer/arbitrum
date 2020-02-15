@@ -135,6 +135,20 @@ func ValidateRollupChain(execName string, managerCreationFunc func(rollupAddress
 	}
 	client := ethbridge.NewEthAuthClient(ethclint, auth)
 
+	rollupWatcher, err := client.NewRollupWatcher(address)
+	if err != nil {
+		return err
+	}
+
+	params, err := rollupWatcher.GetParams(context.Background())
+	if err != nil {
+		return err
+	}
+
+	if err := WaitForBalance(context.Background(), client, params.StakeToken, common.NewAddressFromEth(auth.From)); err != nil {
+		return err
+	}
+
 	if err := arbbridge.WaitForNonZeroBalance(context.Background(), client, common.NewAddressFromEth(auth.From)); err != nil {
 		return err
 	}
