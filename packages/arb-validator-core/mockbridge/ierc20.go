@@ -17,6 +17,9 @@
 package mockbridge
 
 import (
+	"context"
+	"math/big"
+
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/offchainlabs/arbitrum/packages/arb-util/common"
 	"github.com/offchainlabs/arbitrum/packages/arb-validator-core/arbbridge"
@@ -29,5 +32,13 @@ type iERC20Watcher struct {
 }
 
 func newIERC20Watcher(address ethcommon.Address, client arbbridge.ArbClient) (*iERC20Watcher, error) {
+	return nil, nil
+}
+
+func (con *iERC20Watcher) Allowance(ctx context.Context, owner, spender common.Address) (*big.Int, error) {
+	return nil, nil
+}
+
+func (con *iERC20Watcher) BalanceOf(ctx context.Context, account common.Address) (*big.Int, error) {
 	return nil, nil
 }
