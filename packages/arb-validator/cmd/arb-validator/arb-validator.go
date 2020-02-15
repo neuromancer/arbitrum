@@ -63,6 +63,7 @@ func createRollupChain() error {
 	createCmd := flag.NewFlagSet("validate", flag.ExitOnError)
 	passphrase := createCmd.String("password", "", "password=pass")
 	gasPrice := createCmd.Float64("gasprice", 4.5, "gasprice=FloatInGwei")
+
 	tokenAddressString := createCmd.String("staketoken", "", "staketoken=TokenAddress")
 	stakeAmountString := createCmd.String("stakeamount", "", "stakeamount=Amount")
 	err := createCmd.Parse(os.Args[2:])
@@ -72,8 +73,8 @@ func createRollupChain() error {
 
 	if createCmd.NArg() != 3 {
 		flag.PrintDefaults()
-		fmt.Fprintf(createCmd.Output(), "Usage of %s:\n", os.Args[0])
-		return errors.New("usage: arb-validator create [--password=pass] [--gasprice==FloatInGwei] <validator_folder> <ethURL> <factoryAddress>")
+		_, _ = fmt.Fprintf(createCmd.Output(), "Usage of %s:\n", os.Args[0])
+		return errors.New("arb-validator invoked incorrecly")
 	}
 
 	validatorFolder := createCmd.Arg(0)
