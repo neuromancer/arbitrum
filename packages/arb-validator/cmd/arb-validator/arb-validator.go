@@ -64,12 +64,15 @@ func createRollupChain() error {
 	passphrase := createCmd.String("password", "", "password=pass")
 	gasPrice := createCmd.Float64("gasprice", 4.5, "gasprice=FloatInGwei")
 	tokenAddressString := createCmd.String("staketoken", "", "staketoken=TokenAddress")
+	stakeAmountString := createCmd.String("stakeamount", "", "stakeamount=Amount")
 	err := createCmd.Parse(os.Args[2:])
 	if err != nil {
 		return err
 	}
 
 	if createCmd.NArg() != 3 {
+		flag.PrintDefaults()
+		fmt.Fprintf(createCmd.Output(), "Usage of %s:\n", os.Args[0])
 		return errors.New("usage: arb-validator create [--password=pass] [--gasprice==FloatInGwei] <validator_folder> <ethURL> <factoryAddress>")
 	}
 
@@ -114,6 +117,15 @@ func createRollupChain() error {
 	params := rollup.DefaultChainParams()
 	if *tokenAddressString != "" {
 		params = params.WithStakeToken(common.HexToAddress(*tokenAddressString))
+	}
+
+	if *stakeAmountString == "" {
+		stakeAmount, success := new(big.Int).SetString(*stakeAmountString, 10)
+		if success {
+			params = params.WithStakeRequirement(stakeAmount)
+		} else {
+			return errors.New("Invalid stake amount: expected an integer")
+		}
 	}
 
 	address, err := factory.CreateRollup(
