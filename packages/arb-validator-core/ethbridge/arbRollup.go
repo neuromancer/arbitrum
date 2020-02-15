@@ -50,14 +50,21 @@ func newRollup(address ethcommon.Address, client *ethclient.Client, auth *Transa
 	return vm, err
 }
 
-func (vm *arbRollup) PlaceStake(ctx context.Context, stakeAmount *big.Int, proof1 []common.Hash, proof2 []common.Hash) error {
+func (vm *arbRollup) GetAddress() common.Address {
+	return common.NewAddressFromEth(vm.contractAddress)
+}
+
+func (vm *arbRollup) PlaceStake(ctx context.Context, stakeAmount *big.Int, stakeToken common.Address, proof1 []common.Hash, proof2 []common.Hash) error {
 	vm.auth.Lock()
 	defer vm.auth.Unlock()
 	call := &bind.TransactOpts{
 		From:    vm.auth.auth.From,
 		Signer:  vm.auth.auth.Signer,
-		Value:   stakeAmount,
 		Context: ctx,
+	}
+	blankAddress := common.Address{}
+	if stakeToken == blankAddress {
+		call.Value = stakeAmount
 	}
 	tx, err := vm.ArbRollup.PlaceStake(
 		call,

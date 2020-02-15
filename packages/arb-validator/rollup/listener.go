@@ -109,9 +109,27 @@ func stakeLatestValid(ctx context.Context, chain *ChainObserver, stakingKey *Sta
 	proof1 := GeneratePathProof(chain.nodeGraph.latestConfirmed, location)
 	proof2 := GeneratePathProof(location, chain.nodeGraph.getLeaf(location))
 	stakeAmount := chain.nodeGraph.params.StakeRequirement
+	stakeToken := chain.nodeGraph.params.StakeToken
 
 	log.Println("Placing stake for", stakingKey.client.Address())
-	return stakingKey.contract.PlaceStake(ctx, stakeAmount, proof1, proof2)
+	ierc20Watcher, err := stakingKey.client.NewIERC20Watcher(stakeToken)
+	if err != nil {
+		return err
+	}
+	allowance, err := ierc20Watcher.Allowance(ctx, stakingKey.client.Address(), stakingKey.contract.GetAddress())
+	if err != nil {
+		return err
+	}
+	if allowance.Cmp(stakeAmount) < 0 {
+		ierc20, err := stakingKey.client.NewIERC20(stakeToken)
+		if err != nil {
+			return err
+		}
+		if err := ierc20.Approve(ctx, stakingKey.contract.GetAddress(), stakeAmount); err != nil {
+			return err
+		}
+	}
+	return stakingKey.contract.PlaceStake(ctx, stakeAmount, stakeToken, proof1, proof2)
 }
 
 func (lis *ValidatorChainListener) AddStaker(client arbbridge.ArbAuthClient) error {

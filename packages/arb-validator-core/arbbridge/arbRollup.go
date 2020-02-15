@@ -25,7 +25,9 @@ import (
 )
 
 type ArbRollup interface {
-	PlaceStake(ctx context.Context, stakeAmount *big.Int, proof1 []common.Hash, proof2 []common.Hash) error
+	GetAddress() common.Address
+
+	PlaceStake(ctx context.Context, stakeAmount *big.Int, stakeToken common.Address, proof1 []common.Hash, proof2 []common.Hash) error
 	RecoverStakeConfirmed(ctx context.Context, proof []common.Hash) error
 	RecoverStakeOld(ctx context.Context, staker common.Address, proof []common.Hash) error
 	RecoverStakeMooted(ctx context.Context, nodeHash common.Hash, staker common.Address, latestConfirmedProof []common.Hash, stakerProof []common.Hash) error

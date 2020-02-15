@@ -413,12 +413,12 @@ func (vm *ethRollupWatcher) GetParams(ctx context.Context) (valprotocol.ChainPar
 	if err != nil {
 		return valprotocol.ChainParams{}, err
 	}
-	stakeRequired, err := vm.ArbRollup.GetStakeRequired(nil)
+	stakeRequired, err := vm.ArbRollup.GetStakeRequired(&bind.CallOpts{Context: ctx})
 	if err != nil {
 		return valprotocol.ChainParams{}, err
 	}
 
-	stakeToken, err := vm.ArbRollup.GetStakeToken(nil)
+	stakeToken, err := vm.ArbRollup.GetStakeToken(&bind.CallOpts{Context: ctx})
 	if err != nil {
 		return valprotocol.ChainParams{}, err
 	}
@@ -433,7 +433,7 @@ func (vm *ethRollupWatcher) GetParams(ctx context.Context) (valprotocol.ChainPar
 }
 
 func (vm *ethRollupWatcher) InboxAddress(ctx context.Context) (common.Address, error) {
-	addr, err := vm.ArbRollup.GlobalInbox(nil)
+	addr, err := vm.ArbRollup.GlobalInbox(&bind.CallOpts{Context: ctx})
 	return common.NewAddressFromEth(addr), err
 }
 

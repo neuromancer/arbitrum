@@ -149,10 +149,6 @@ func ValidateRollupChain(execName string, managerCreationFunc func(rollupAddress
 		return err
 	}
 
-	if err := arbbridge.WaitForNonZeroBalance(context.Background(), client, common.NewAddressFromEth(auth.From)); err != nil {
-		return err
-	}
-
 	rollupActor, err := client.NewRollup(address)
 	if err != nil {
 		return err

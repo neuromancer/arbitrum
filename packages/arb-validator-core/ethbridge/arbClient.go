@@ -209,6 +209,10 @@ func (c *EthArbAuthClient) NewInboxTopChallenge(address common.Address) (arbbrid
 	return newInboxTopChallenge(address.ToEthAddress(), c.client, c.auth)
 }
 
+func (c *EthArbAuthClient) NewIERC20(address common.Address) (arbbridge.IERC20, error) {
+	return newIERC20(address.ToEthAddress(), c.client, c.auth)
+}
+
 func (c *EthArbAuthClient) DeployChallengeTest(ctx context.Context, challengeFactory common.Address) (*ChallengeTester, error) {
 	c.auth.Lock()
 	defer c.auth.Unlock()

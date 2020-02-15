@@ -43,7 +43,11 @@ func NewRollup(address common.Address, client arbbridge.ArbClient) (*ArbRollup, 
 	}, nil
 }
 
-func (vm *ArbRollup) PlaceStake(ctx context.Context, stakeAmount *big.Int, proof1 []common.Hash, proof2 []common.Hash) error {
+func (vm *ArbRollup) GetAddress() common.Address {
+	return common.Address{}
+}
+
+func (vm *ArbRollup) PlaceStake(ctx context.Context, stakeAmount *big.Int, stakeToken common.Address, proof1 []common.Hash, proof2 []common.Hash) error {
 	//call := &bind.TransactOpts{
 	//	From:    vm.auth.From,
 	//	Signer:  vm.auth.Signer,
