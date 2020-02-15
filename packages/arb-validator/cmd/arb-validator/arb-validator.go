@@ -72,8 +72,9 @@ func createRollupChain() error {
 	}
 
 	if createCmd.NArg() != 3 {
-		flag.PrintDefaults()
-		_, _ = fmt.Fprintf(createCmd.Output(), "Usage of %s:\n", os.Args[0])
+		_, _ = fmt.Fprintf(createCmd.Output(), "Usage %s create <validator_folder> <ethURL> <factoryAddress>:\n", os.Args[0])
+		fmt.Println("Optional flags:")
+		createCmd.PrintDefaults()
 		return errors.New("arb-validator invoked incorrecly")
 	}
 
