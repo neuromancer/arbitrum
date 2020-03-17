@@ -21,7 +21,56 @@
 #include <avm/value/value.hpp>
 
 #include <memory>
+#include <unordered_set>
 #include <vector>
+
+struct StartTrackingData {
+    value register_val;
+    std::vector<value> stack;
+    std::vector<value> auxstack;
+};
+
+struct EndTrackingData {
+    std::unordered_set<uint256_t> stack_seen_value_hashes;
+    std::unordered_set<uint256_t> auxstack_seen_value_hashes;
+    size_t stack_min_height;
+    size_t auxstack_min_height;
+
+    std::vector<unsigned char> accessedValues(
+        const StartTrackingData& start_data) {
+        auto seen_value_hashes = std::move(stack_seen_value_hashes);
+
+        seen_value_hashes.insert(
+            make_move_iterator(auxstack_seen_value_hashes.begin()),
+            make_move_iterator(auxstack_seen_value_hashes.end()));
+
+        std::vector<value> stack_items;
+        std::vector<value> auxstack_items;
+        auto stack_item_count = start_data.stack.size() - stack_min_height;
+
+        stack_items.insert(
+            stack_items.end(),
+            make_move_iterator(start_data.stack.end() - stack_item_count),
+            make_move_iterator(start_data.stack.end()));
+
+        auto auxstack_item_count =
+            start_data.auxstack.size() - auxstack_min_height;
+        auxstack_items.insert(
+            auxstack_items.end(),
+            make_move_iterator(start_data.auxstack.end() - auxstack_item_count),
+            make_move_iterator(start_data.auxstack.end()));
+        std::vector<unsigned char> n_step_data;
+        marshal_n_step(start_data.register_val, seen_value_hashes, n_step_data);
+        for (const auto& val : stack_items) {
+            marshal_value(val, n_step_data);
+        }
+        for (const auto& val : auxstack_items) {
+            marshal_value(val, n_step_data);
+        }
+
+        return n_step_data;
+    }
+};
 
 struct Assertion {
     uint64_t stepCount;
@@ -65,6 +114,28 @@ class Machine {
     bool restoreCheckpoint(const CheckpointStorage& storage,
                            const std::vector<unsigned char>& checkpoint_key);
     DeleteResults deleteCheckpoint(CheckpointStorage& storage);
+
+    StartTrackingData startTracking() {
+        machine_state.stack.resetMinHeight();
+        machine_state.auxstack.resetMinHeight();
+        return {machine_state.registerVal, machine_state.stack.values,
+                machine_state.auxstack.values};
+    }
+
+    EndTrackingData finishTracking() {
+        auto seen_stack = std::move(machine_state.stack.seen_value_hashes);
+        auto seen_auxstack =
+            std::move(machine_state.auxstack.seen_value_hashes);
+
+        machine_state.stack.seen_value_hashes.clear();
+        machine_state.auxstack.seen_value_hashes.clear();
+        return {
+            seen_stack,
+            seen_auxstack,
+            machine_state.stack.min_height,
+            machine_state.auxstack.min_height,
+        };
+    }
 };
 
 std::ostream& operator<<(std::ostream& os, const MachineState& val);

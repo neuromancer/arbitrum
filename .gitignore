@@ -4,6 +4,7 @@
 .vscode
 *.ao
 compiled.json
+*.icloud
 ci
 debug
 build

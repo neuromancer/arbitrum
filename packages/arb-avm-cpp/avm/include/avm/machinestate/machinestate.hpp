@@ -18,8 +18,8 @@
 #define machinestate_hpp
 
 #include <avm/machinestate/blockreason.hpp>
-#include <avm/machinestate/datastack.hpp>
 #include <avm/machinestate/messagestack.hpp>
+#include <avm/machinestate/recording_datastack.hpp>
 #include <avm/value/value.hpp>
 
 #include <memory>
@@ -46,8 +46,8 @@ struct MachineState {
     std::vector<CodePoint> code;
     value staticVal;
     value registerVal;
-    Datastack stack;
-    Datastack auxstack;
+    RecordingDatastack stack;
+    RecordingDatastack auxstack;
     Status state = Status::Extensive;
     uint64_t pc = 0;
     CodePoint errpc;

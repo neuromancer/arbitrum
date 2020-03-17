@@ -148,6 +148,48 @@ void marshalShallow(const HashOnly& val, std::vector<unsigned char>& buf) {
     marshal_hash_only(val, buf);
 }
 
+void marshal_n_step(const value& val,
+                    const std::unordered_set<uint256_t>& seen_vals,
+                    std::vector<unsigned char>& buf) {
+    return nonstd::visit(
+        [&](const auto& v) { return marshal_n_step(v, seen_vals, buf); }, val);
+}
+
+void marshal_n_step(const Tuple& val,
+                    const std::unordered_set<uint256_t>& seen_vals,
+                    std::vector<unsigned char>& buf) {
+    buf.push_back(TUPLE + val.tuple_size());
+    for (uint64_t i = 0; i < val.tuple_size(); i++) {
+        auto itemval = val.get_element(i);
+        auto item_hash = ::hash(itemval);
+        if (nonstd::holds_alternative<uint256_t>(itemval)) {
+            marshalShallow(itemval, buf);
+        } else if (seen_vals.find(item_hash) != seen_vals.end()) {
+            marshal_n_step(itemval, seen_vals, buf);
+        } else {
+            marshal_hash_only(HashOnly{::hash(itemval)}, buf);
+        }
+    }
+}
+
+void marshal_n_step(const CodePoint& val,
+                    const std::unordered_set<uint256_t>&,
+                    std::vector<unsigned char>& buf) {
+    val.op.marshal(buf);
+}
+
+void marshal_n_step(const uint256_t& val,
+                    const std::unordered_set<uint256_t>&,
+                    std::vector<unsigned char>& buf) {
+    marshal_uint256_t(val, buf);
+}
+
+void marshal_n_step(const HashOnly& val,
+                    const std::unordered_set<uint256_t>&,
+                    std::vector<unsigned char>& buf) {
+    marshal_hash_only(val, buf);
+}
+
 value deserialize_value(const char*& bufptr, TuplePool& pool) {
     uint8_t valType;
     memcpy(&valType, bufptr, sizeof(valType));
@@ -217,4 +259,28 @@ std::vector<unsigned char> GetHashKey(const value& val) {
     marshal_value(hash_key, hash_key_vector);
 
     return hash_key_vector;
+}
+
+struct MembershipVisitor {
+    std::unordered_set<uint256_t>& items;
+
+    void operator()(const Tuple& val) const {
+        items.insert(hash(val));
+        for (uint64_t i = 0; i < val.tuple_size(); i++) {
+            auto item = val.get_element(i);
+            nonstd::visit(MembershipVisitor{items}, item);
+        }
+    }
+
+    void operator()(const uint256_t& val) const { items.insert(hash(val)); }
+
+    void operator()(const CodePoint& val) const { items.insert(hash(val)); }
+
+    void operator()(const HashOnly& val) const { items.insert(hash(val)); }
+};
+
+std::unordered_set<uint256_t> build_membership_set(const value& val) {
+    std::unordered_set<uint256_t> items;
+    nonstd::visit(MembershipVisitor{items}, val);
+    return items;
 }

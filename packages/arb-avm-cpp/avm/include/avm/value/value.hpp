@@ -21,6 +21,8 @@
 
 #include <nonstd/variant.hpp>
 
+#include <unordered_set>
+
 enum ValueTypes { NUM, CODEPT, HASH_ONLY, TUPLE };
 
 class TuplePool;
@@ -61,6 +63,22 @@ void marshalShallow(const CodePoint& val, std::vector<unsigned char>& buf);
 void marshalShallow(const uint256_t& val, std::vector<unsigned char>& buf);
 void marshalShallow(const HashOnly& val, std::vector<unsigned char>& buf);
 
+void marshal_n_step(const value& val,
+                    const std::unordered_set<uint256_t>& seen_vals,
+                    std::vector<unsigned char>& buf);
+void marshal_n_step(const Tuple& val,
+                    const std::unordered_set<uint256_t>& seen_vals,
+                    std::vector<unsigned char>& buf);
+void marshal_n_step(const CodePoint& val,
+                    const std::unordered_set<uint256_t>& seen_vals,
+                    std::vector<unsigned char>& buf);
+void marshal_n_step(const uint256_t& val,
+                    const std::unordered_set<uint256_t>& seen_vals,
+                    std::vector<unsigned char>& buf);
+void marshal_n_step(const HashOnly& val,
+                    const std::unordered_set<uint256_t>& seen_vals,
+                    std::vector<unsigned char>& buf);
+
 template <typename T>
 static T shrink(uint256_t i) {
     return static_cast<T>(i & std::numeric_limits<T>::max());
@@ -71,5 +89,7 @@ std::vector<unsigned char> GetHashKey(const value& val);
 inline bool operator==(const HashOnly& val1, const HashOnly& val2) {
     return val1.hash == val2.hash;
 }
+
+std::unordered_set<uint256_t> build_membership_set(const value& value);
 
 #endif /* value_hpp */
