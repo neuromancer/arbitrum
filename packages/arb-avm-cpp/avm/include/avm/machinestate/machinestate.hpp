@@ -72,6 +72,7 @@ struct MachineState {
     SaveResults checkpointState(CheckpointStorage& storage);
     bool restoreCheckpoint(const CheckpointStorage& storage,
                            const std::vector<unsigned char>& checkpoint_key);
+    void run_n(uint64_t n);
 };
 
 #endif /* machinestate_hpp */

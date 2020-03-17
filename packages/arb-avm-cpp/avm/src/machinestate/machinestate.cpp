@@ -25,6 +25,9 @@
 #include <bigint_utils.hpp>
 #include <util.hpp>
 
+#include <optional>
+#include <vector>
+
 namespace {
 std::vector<CodePoint> opsToCodePoints(const std::vector<Operation>& ops) {
     std::vector<CodePoint> cps;
@@ -495,4 +498,34 @@ BlockReason MachineState::runOp(OpCode opcode) {
             state = Status::Error;
     }
     return NotBlocked{};
+}
+
+struct tosend {
+    tosend* sendvalues[8];
+};
+
+void MachineState::run_n(uint64_t number) {
+    Datastack oldstack = stack;
+    size_t unmodified = stack.values.size();
+    std::vector<tosend> sends(oldstack.values.size());
+    int sendidx = -1;
+    tosend* sendpointer = nullptr;
+    for (uint64_t i = 0; i < number; i++) {
+        auto current_op = code[pc].op.opcode;
+        runOp(code[pc].op.opcode);
+        unmodified = std::min(stack.values.size(), unmodified);
+        if (current_op == OpCode::TGET) {
+            auto next = tosend();
+            if (sendidx < 0) {
+                sends[pc - 1].sendvalues[pc] = &next;
+            } else {
+                sendpointer->sendvalues[machineoperation::assumeInt(
+                    stack.values.back())] = &next;
+            }
+        }
+    };
+    std::vector<value>::const_iterator start =
+        oldstack.values.begin() + unmodified;
+    std::vector<value>::const_iterator end = oldstack.values.end();
+    std::vector<value> to_send(start, end);
 }
