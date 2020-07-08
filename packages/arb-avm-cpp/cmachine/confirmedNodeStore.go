@@ -26,6 +26,7 @@ package cmachine
 import "C"
 import (
 	"errors"
+	"fmt"
 	"github.com/offchainlabs/arbitrum/packages/arb-util/common"
 	"runtime"
 	"unsafe"
@@ -76,7 +77,7 @@ func (ns *ConfirmedNodeStore) GetNode(height uint64, hash common.Hash) ([]byte, 
 	)
 
 	if result.found == 0 {
-		return nil, errors.New("not found")
+		return nil, fmt.Errorf("confirmed node not found for height %v and hash %v", height, hash)
 	}
 
 	return toByteSlice(result.slice), nil
@@ -92,7 +93,7 @@ func (ns *ConfirmedNodeStore) GetNodeHeight(hash common.Hash) (uint64, error) {
 	)
 
 	if result.found == 0 {
-		return 0, errors.New("not found")
+		return 0, fmt.Errorf("node height not found for hash %v", hash)
 	}
 
 	return uint64(result.value), nil
@@ -105,7 +106,7 @@ func (ns *ConfirmedNodeStore) GetNodeHash(height uint64) (common.Hash, error) {
 	)
 
 	if result.found == 0 {
-		return common.Hash{}, errors.New("not found")
+		return common.Hash{}, fmt.Errorf("node hash not found for height %v", height)
 	}
 
 	return dataToHash(result.value), nil

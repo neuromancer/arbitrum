@@ -19,6 +19,7 @@ package rollupvalidator
 import (
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/offchainlabs/arbitrum/packages/arb-validator-core/evm"
 	"google.golang.org/protobuf/proto"
@@ -324,7 +325,7 @@ func (txdb *txDB) lookupNodeMetadata(nodeHeight uint64, nodeHash common.Hash) (*
 
 	metadataRaw := txdb.db.GetData(nodeMetadataKey(key))
 	if len(metadataRaw) == 0 {
-		return nil, errors.New("not found")
+		return nil, fmt.Errorf("node metadata not found for height %v and hash %v", nodeHeight, nodeHash)
 	}
 
 	metadata = &NodeMetadata{}
@@ -346,7 +347,7 @@ func (txdb *txDB) getInMemoryNodeData(key nodeRecordKey) (*nodeInfo, error) {
 	if ok {
 		return nodeInfoCache.(*nodeInfo), nil
 	}
-	return nil, errors.New("not found")
+	return nil, fmt.Errorf("node info not found in memory with height %v and hash %v", key.height, key.hash)
 }
 
 // deleteNode is a private method that should not be called externally

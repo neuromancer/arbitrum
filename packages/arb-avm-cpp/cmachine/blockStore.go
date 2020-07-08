@@ -26,6 +26,7 @@ package cmachine
 import "C"
 import (
 	"errors"
+	"fmt"
 	"runtime"
 	"unsafe"
 
@@ -99,7 +100,7 @@ func (bs *BlockStore) GetBlock(id *common.BlockId) ([]byte, error) {
 	)
 
 	if result.found == 0 {
-		return nil, errors.New("not found")
+		return nil, fmt.Errorf("block not found in block store with id %v", id)
 	}
 
 	return toByteSlice(result.slice), nil
